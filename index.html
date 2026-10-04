@@ -64,9 +64,23 @@ input[type=number]:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3
 details>summary{cursor:pointer;padding:13px 14px;font-weight:700;list-style:none;display:flex;justify-content:space-between}
 details>summary::after{content:"＋";color:var(--mut)}details[open]>summary::after{content:"－"}
 details[open]>summary{border-bottom:1px solid var(--line)}
+nav{overflow-x:auto}nav button{font-size:12px;padding:9px 2px;min-width:0;white-space:nowrap}
+input[type=text]{width:100%;margin-top:4px;padding:10px;font-size:16px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);outline:0}
+.pulse{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.pc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px;box-shadow:var(--sh)}
+.pc small{color:var(--mut);display:block;font-size:12px}.pc b{font-size:15px}.pc span{font-size:12.5px;font-weight:700}
+.up{color:var(--g)}.dn{color:var(--r)}
+.tp{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px}
+.tp button{flex:none;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 12.5px inherit;font-family:inherit}
+.tp button.on{background:var(--acc);color:#fff;border-color:transparent}
+.nw{display:block;padding:11px 14px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}
+.nw:last-child{border-bottom:0}.nw small{display:block;color:var(--mut);margin-top:3px;font-size:12px}
+.bar{height:6px;border-radius:9px;background:var(--line);overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--acc)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.x{background:none;border:0;color:var(--r);font-size:18px;padding:4px 6px}.warn{color:var(--r);font-weight:600}
 </style></head><body>
 <header><div style="display:flex;align-items:center;gap:12px"><svg width='42' height='42' viewBox='0 0 32 32' aria-hidden='true'><rect width='32' height='32' rx='8' fill='rgba(255,255,255,.22)'/><path d='M6 23 L12 16 L17 20 L26 9' fill='none' stroke='#fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/><circle cx='26' cy='9' r='2.6' fill='#fff'/></svg><div><b>Swing Playbook</b><small>Trade the plan, not the mood</small></div></div><div class="sw" id="sw"></div></header>
-<nav><button data-t="regime" class="on">📊 Regime</button><button data-t="check">✅ Checklist</button><button data-t="rules">📜 Rules</button></nav>
+<nav><button data-t="regime" class="on">📊 Regime</button><button data-t="check">✅ Check</button><button data-t="risk">🛡️ Risk</button><button data-t="news">📰 News</button><button data-t="rules">📜 Rules</button></nav>
 <main>
 
 <section class="tab on" id="regime">
@@ -81,6 +95,8 @@ details[open]>summary{border-bottom:1px solid var(--line)}
 <div id="steps"></div>
 </section>
 
+<section class="tab" id="risk"></section>
+<section class="tab" id="news"></section>
 <section class="tab" id="rules">
 <h1>Rules</h1>
 <div class="box" style="--a:#6366f1"><details open><summary>🧭 Market &amp; selection</summary><div class="in"><ul class="rl">
@@ -98,6 +114,8 @@ details[open]>summary{border-bottom:1px solid var(--line)}
 
 <script>
 const $=id=>document.getElementById(id);
+var RK={allow:0,room:0,limR:0,open:0,blocked:false,why:[],secTxt:''},RKR=0;
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 let S={};try{S=JSON.parse(localStorage.getItem('sp2'))||{}}catch(e){}
 const save=()=>{try{S.d=new Date().toLocaleString();localStorage.setItem('sp2',JSON.stringify(S))}catch(e){}};
 const E=['🟢','🟡','🟠','🔴'],RISK=['Normal risk','Half risk','Minimal risk','No new trades'],RN=['Green','Yellow','Orange','Red'];
@@ -137,46 +155,110 @@ function upd(){
  $('ovr').textContent=f.length+' of 5 layers filled'+(V[0]===3?' · Index damaged forces Red':'');
  $('stamp').textContent=S.d?'Last updated: '+S.d+' (saved in this browser)':'';
  const g=$('g1');if(g)g.textContent=regime==null?'Not set yet':E[regime]+' '+RN[regime]+' · '+RISK[regime];
+ if(RKR)rkCalc();
 }
 upd();
 
 const G=[
-['Market permission',['Regime is Green, Yellow or Orange, not Red','Environment supports my setup type','Regime risk allocation is still available','Portfolio open risk is not too high','The market is offering a setup; I don\'t just need a trade'],'<p class="mut">Today\'s regime: <b id="g1"></b></p>'],
+['Market permission',['Regime is Green, Yellow or Orange, not Red','Environment supports my setup type','Regime risk allocation is still available','Portfolio open risk is not too high','The market is offering a setup; I don\'t just need a trade'],'<p class="mut">Today\'s regime: <b id="g1"></b></p><p class="mut" id="g1b"></p>'],
 ['Stock eligibility',['It is on my Focus List','Picked in my planned scan','Strong, constructive trend','Relative strength vs market/sector','Sector is healthy or supportive','Liquidity fits my size']],
 ['Setup validation',['I can name the setup (VCP, Tight Range, EMA Pullback, Flag, Continuation, IPO Base, DEP)','It meets ALL my criteria','Base is constructive, not loose or messy','Selling is controlled, no distribution','Volume behaves as expected','Close enough to trigger for good risk/reward','The objective trigger has occurred (almost is not a trigger)']],
 ['Entry quality',['Price is inside my planned entry zone','Not extended from pivot/trigger','Buying confirmation, not a fast candle','Distance to stop is still acceptable']],
 ['Stop-loss',['I know the exact stop level','I know why it is there','If hit, my thesis is invalid','It is technically meaningful, not arbitrary','Stop distance is acceptable for this setup'],'<p class="mut">Stop first, size second.</p>'],
 ['Position size & risk',['₹ risk and % portfolio risk are known','Within today\'s regime allowance','New open risk (existing + this) is within my limit','Within max position allocation'],
- `<div class="calc"><div class="grid">${inp('c1','Entry ₹')}${inp('c2','Stop ₹')}${inp('c3','Max risk ₹')}</div><b id="cq"></b></div>`],
-['Portfolio correlation',['Not already holding several from this sector/theme','Not making the same bet again','Won\'t over-expose me to one theme']],
+ `<div class="calc"><div class="grid">${inp('c1','Entry ₹')}${inp('c2','Stop ₹')}${inp('c3','Max risk ₹ (auto)')}</div><b id="cq"></b></div>`],
+['Portfolio correlation',['Not already holding several from this sector/theme','Not making the same bet again','Won\'t over-expose me to one theme'],()=>'<p class="mut">'+(RK.secTxt||'No positions logged yet.')+'</p>'],
 ['Psychology',['I\'d take it with no trades made today','I\'d take it if my last trade won','I\'d take it if my last trade lost','Not recovering a loss','Not afraid of missing out','Not excited by speed','Not bored','Not proving my market view','If it vanished, I\'d regret a valid trade, not FOMO']],
 ['Final test',['Focus List stock, acceptable market, valid setup and trigger, predefined stop, calculated size, acceptable risk, no emotional reason']]];
-let cur=0,fail=-1;
+const inr=n=>(n<0?'-':'')+'₹'+Math.abs(Math.round(n)).toLocaleString('en-IN');
+const RKD={cap:500000,rg:.5,ry:.25,ro:.125,og:2,oy:1,oo:.5,dl:1,wl:2,ms:20,mt:30,d1:3,d2:5,eq:500000,hwm:500000,pd:0,pw:0,cl:0,pos:[]};
+let RS=Object.assign({},RKD);try{Object.assign(RS,JSON.parse(localStorage.getItem('sp_rk'))||{})}catch(e){}
+const rsave=()=>{try{localStorage.setItem('sp_rk',JSON.stringify(RS))}catch(e){}};
+const ri=(k,l,t)=>`<label class="f">${l}<input ${t?'type="text" inputmode="text"':'type="number" step="any" inputmode="decimal"'} data-rk="${k}" value="${RS[k]}"></label>`;
+const fl=(id,l,t)=>`<label class="f">${l}<input id="${id}" ${t?'type="text"':'type="number" step="any" inputmode="decimal"'}></label>`;
+$('risk').innerHTML=`<h1>Risk &amp; positions</h1><div id="rkb"></div>
+<div class="box" style="--a:#ef4444"><div class="hd"><b>Today's status</b></div><div class="in"><div class="grid">${ri('eq','Current equity ₹')}${ri('hwm','Equity high ₹')}${ri('pd','Today P&amp;L ₹ (loss = −)',1)}${ri('pw','Week P&amp;L ₹ (loss = −)',1)}${ri('cl','Losses in a row')}</div></div></div>
+<div class="box" style="--a:#0ea5e9"><div class="hd"><b>Open positions</b></div><div class="in"><div class="grid">${fl('ps','Stock',1)}${fl('pc','Sector / theme',1)}${fl('pq','Quantity')}${fl('pe','Entry ₹')}${fl('pt','Current stop ₹')}</div><button class="b ok" id="padd" style="width:100%;margin-top:10px">Add position</button><div id="rkpos"></div></div></div>
+<div class="box" style="--a:#f59e0b"><div class="hd"><b>Sector exposure</b></div><div class="in" id="rksec"></div></div>
+<div class="box" style="--a:#10b981"><details><summary>⚙️ Limits (edit)</summary><div class="in"><div class="grid">${ri('cap','Capital ₹')}${ri('rg','Green risk/trade %')}${ri('ry','Yellow risk/trade %')}${ri('ro','Orange risk/trade %')}${ri('og','Green open risk %')}${ri('oy','Yellow open risk %')}${ri('oo','Orange open risk %')}${ri('dl','Daily loss limit %')}${ri('wl','Weekly loss limit %')}${ri('ms','Max single stock %')}${ri('mt','Max sector %')}${ri('d1','Defensive drawdown %')}${ri('d2','Preservation drawdown %')}</div><p class="mut">Open risk counts (entry − stop) × quantity per position; a stop at or above entry counts as zero risk.</p></div></details></div>`;
+document.querySelectorAll('[data-rk]').forEach(el=>el.oninput=()=>{RS[el.dataset.rk]=parseFloat(el.value)||0;rsave();rkCalc()});
+$('padd').onclick=()=>{const v=id=>$(id).value.trim(),q=parseFloat(v('pq')),e=parseFloat(v('pe')),s=parseFloat(v('pt'));
+ if(!v('ps')||!(q>0)||!(e>0)||!(s>0))return;
+ RS.pos.push({y:v('ps').toUpperCase(),c:v('pc')||'Other',q,e,s});['ps','pc','pq','pe','pt'].forEach(i=>$(i).value='');rsave();rkCalc()};
+$('rkpos').onclick=ev=>{const d=ev.target.dataset.del;if(d!=null){RS.pos.splice(+d,1);rsave();rkCalc()}};
+function rkCalc(){
+ const r=regime,ri_=r==null?3:r,why=[];let mult=1,note='';
+ const pct=[RS.rg,RS.ry,RS.ro,0][ri_],limR=[RS.og,RS.oy,RS.oo,0][ri_]/100*RS.cap;
+ if(r==null)why.push('Market regime is not set.');else if(r===3)why.push('Regime is Red: no new trades.');
+ if(RS.pd<=-RS.dl/100*RS.cap)why.push('Daily loss limit reached.');
+ if(RS.pw<=-RS.wl/100*RS.cap)why.push('Weekly loss limit reached: stop and review.');
+ if(RS.cl>=4)why.push(RS.cl+' losses in a row: stop and review.');else if(RS.cl===3){mult=.5;note='3 losses in a row: risk halved.'}
+ const dd=RS.hwm>0?(RS.hwm-RS.eq)/RS.hwm*100:0;
+ if(dd>=RS.d2)why.push('Drawdown '+dd.toFixed(1)+'%: capital preservation mode.');
+ else if(dd>=RS.d1){mult=Math.min(mult,.5);note='Drawdown '+dd.toFixed(1)+'%: defensive mode, risk halved.'}
+ const val=p=>p.q*p.e,risk=p=>Math.max(0,(p.e-p.s)*p.q),open=RS.pos.reduce((a,p)=>a+risk(p),0),room=limR-open;
+ if(r!=null&&r!==3&&room<=0)why.push('Open-risk limit reached.');
+ const allow=Math.max(0,Math.min(pct/100*RS.cap*mult,room));
+ RK={allow,room,limR,open,blocked:why.length>0,why,secTxt:''};
+ $('rkb').innerHTML=RK.blocked?`<div class="alert" role="alert"><b>🚫 New trades blocked</b><br>${why.join('<br>')}</div>`
+  :`<div class="alert ok"><b>✅ Trading allowed</b><br>Risk per trade: <b>${inr(allow)}</b>${note?'<br>'+note:''}<br>Open risk ${inr(open)} of ${inr(limR)} · room ${inr(room)}</div>`;
+ $('rkpos').innerHTML=(RS.pos.length?`<p class="mut">Open risk ${inr(open)} (${(open/RS.cap*100).toFixed(2)}% of capital)</p><div class="bar"><i style="width:${Math.min(100,limR?open/limR*100:100)}%"></i></div>`:'<p class="mut">No positions logged.</p>')
+  +RS.pos.map((p,i)=>{const a=val(p)/RS.cap*100;return `<div class="row"><span><b>${esc(p.y)}</b> · ${esc(p.c)}<br><small class="${a>RS.ms?'warn':'mut'}">${p.q} × ${p.e} = ${inr(val(p))} (${a.toFixed(1)}%${a>RS.ms?' over cap':''})</small></span><span style="text-align:right">${inr(risk(p))}<br><small class="mut">risk</small></span><button class="x" data-del="${i}" aria-label="Remove">✕</button></div>`}).join('');
+ const sec={};RS.pos.forEach(p=>sec[p.c]=(sec[p.c]||0)+val(p));
+ const rows=Object.entries(sec).sort((a,b)=>b[1]-a[1]).map(([c,v])=>[c,v/RS.cap*100]);
+ RK.secTxt=rows.length?'Sector exposure: '+rows.map(([c,p])=>esc(c)+' '+p.toFixed(0)+'%'+(p>RS.mt?' ⚠️':'')).join(' · '):'';
+ $('rksec').innerHTML=rows.length?rows.map(([c,p])=>`<div class="row"><span>${esc(c)}</span><span class="${p>RS.mt?'warn':''}">${p.toFixed(1)}% of ${RS.mt}% cap</span></div>`).join(''):'<p class="mut" style="margin:0">Nothing logged.</p>';
+ const g=$('g1b');if(g)g.textContent=RK.blocked?'🚫 '+why.join(' '):'✅ Risk per trade '+inr(allow)+' · open-risk room '+inr(room);
+}
+RKR=1;rkCalc();
+
+let cur=0,fail=-1,failWhy='';
 function render(){
  let h='';
- if(fail>=0)h+=`<div class="alert" role="alert"><b>🚫 Gate ${fail+1} failed: ${G[fail][0]}</b><br>Pre-trade checklist failed. You are not allowed to trade today.<br><button id="rs">Reset checklist</button></div>`;
+ if(fail>=0)h+=`<div class="alert" role="alert"><b>🚫 Gate ${fail+1} failed: ${G[fail][0]}</b><br>Pre-trade checklist failed. You are not allowed to trade today.<br>${failWhy?failWhy+'<br>':''}<button id="rs">Reset checklist</button></div>`;
  else if(cur>=G.length)h+=`<div class="alert ok" role="status"><b>✅ All 9 gates passed.</b><br>Take the trade exactly as planned.<br><button id="rs">Reset checklist</button></div>`;
+ if(fail<0&&cur===0&&RK.blocked)h+='<div class="alert" role="alert"><b>⚠️ Trading is blocked today</b><br>'+RK.why.join('<br>')+'</div>';
  G.forEach((g,i)=>{
   const st=i<cur?'done':i===cur?(fail===i?'fail':'act'):'lock';
   h+=`<div class="box ${st==='lock'?'lock':''}"><div class="step ${st==='done'?'done':''}"><span><i class="n">${i+1}</i>${g[0]}</span><span>${st==='done'?'✓':st==='fail'?'✕':st==='lock'?'🔒':''}</span></div>`;
-  if(st==='act')h+=`<div class="body">${g[2]||''}${g[1].map(t=>`<label class="ck"><input type="checkbox">${t}</label>`).join('')}<div class="btns"><button class="b ok" id="pass" disabled>Pass gate</button><button class="b no" id="nope">A check fails</button></div></div>`;
+  if(st==='act')h+=`<div class="body">${typeof g[2]==='function'?g[2]():(g[2]||'')}${g[1].map(t=>`<label class="ck"><input type="checkbox">${t}</label>`).join('')}<div class="btns"><button class="b ok" id="pass" disabled>Pass gate</button><button class="b no" id="nope">A check fails</button></div></div>`;
   h+='</div>'});
  $('steps').innerHTML=h;upd();
  const rs=$('rs');if(rs)rs.onclick=()=>{cur=0;fail=-1;render()};
  const p=$('pass');if(!p)return;
  const cks=[...document.querySelectorAll('#steps .ck input')];
  cks.forEach(c=>c.onchange=()=>p.disabled=!cks.every(x=>x.checked));
- p.onclick=()=>{if(cur===0&&regime===3){fail=0;render();return}cur++;render()};
- $('nope').onclick=()=>{fail=cur;render();$('steps').scrollIntoView()};
- ['c1','c2','c3'].forEach(k=>{const e=document.querySelector(`#steps [data-k="${k}"]`);if(e){e.value=S[k]??'';e.oninput=()=>{S[k]=e.value;calc()}}});calc();
+ p.onclick=()=>{if(cur===0&&RK.blocked){fail=0;failWhy=RK.why.join(' ');render();return}cur++;render()};
+ $('nope').onclick=()=>{fail=cur;failWhy='';render();$('steps').scrollIntoView()};
+ ['c1','c2','c3'].forEach(k=>{const e=document.querySelector(`#steps [data-k="${k}"]`);if(e){e.value=k==='c3'&&RK.allow>0?String(Math.round(RK.allow)):(S[k]??'');e.oninput=()=>{S[k]=e.value;calc()}}});calc();
  if(fail>=0||cur>=G.length)window.scrollTo(0,0);
 }
-function calc(){const q=$('cq');if(!q)return;const[e,s,r]=['c1','c2','c3'].map(num);
- if(e&&s&&r&&e>s){const rps=e-s;const n=Math.floor(r/rps);q.textContent=`Risk/share ₹${rps.toFixed(2)} · Qty ${n} · Capital ₹${Math.round(n*e).toLocaleString('en-IN')}`}else q.textContent='Qty = Max ₹ risk ÷ (Entry − Stop)'}
+function calc(){const q=$('cq');if(!q)return;const g=k=>parseFloat((document.querySelector('#steps [data-k="'+k+'"]')||{}).value);
+ const e=g('c1'),s=g('c2'),r=g('c3');
+ if(e>0&&s>0&&r>0&&e>s){const rps=e-s,n=Math.floor(r/rps),val=n*e,rk=n*rps,w=[];
+  if(val>RS.ms/100*RS.cap)w.push('⚠️ Position exceeds '+RS.ms+'% cap ('+inr(RS.ms/100*RS.cap)+')');
+  if(rk>RK.room+1e-6)w.push('⚠️ Exceeds open-risk room ('+inr(RK.room)+')');
+  q.innerHTML='Risk/share ₹'+rps.toFixed(2)+' · Qty '+n+' · Value '+inr(val)+'<br>Trade risk '+inr(rk)+' · New open risk '+inr(RK.open+rk)+' of '+inr(RK.limR)+(w.length?'<br><span class="warn">'+w.join('<br>')+'</span>':'')}
+ else q.textContent='Qty = Max ₹ risk ÷ (Entry − Stop)'}
 render();
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
  document.querySelectorAll('nav button,.tab').forEach(x=>x.classList.remove('on'));
- b.classList.add('on');$(b.dataset.t).classList.add('on');window.scrollTo(0,0)});
+ b.classList.add('on');$(b.dataset.t).classList.add('on');if(b.dataset.t==='check'&&fail<0&&cur===0)render();window.scrollTo(0,0)});
+let NW=null,NT='All';
+const TOP=['All','Energy','Metals','Geopolitics','US & Trump','India Economy','Markets'];
+$('news').innerHTML=`<h1>Market news</h1><div class="pulse" id="npl"></div><div class="tp" id="ntp"></div><div class="box" style="--a:#ec4899"><div id="nls"></div></div><p class="mut" id="nst"></p>`;
+function ago(ts){const m=Math.max(0,Math.round((Date.now()/1000-ts)/60));return m<60?m+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'}
+function nrender(){
+ $('npl').innerHTML=(NW.pulse||[]).map(x=>`<div class="pc"><small>${esc(x.n)}</small><b>${x.p.toLocaleString('en-IN')}</b> <span class="${x.c>=0?'up':'dn'}">${x.c>=0?'▲':'▼'} ${Math.abs(x.c).toFixed(2)}%</span></div>`).join('');
+ $('ntp').innerHTML=TOP.map(t=>`<button class="${t===NT?'on':''}" data-nt="${esc(t)}">${esc(t)}</button>`).join('');
+ const L=NW.items.filter(i=>NT==='All'||i.topic===NT);
+ $('nls').innerHTML=L.length?L.map(i=>`<a class="nw" href="${/^https?:/.test(i.u)?esc(i.u):'#'}" target="_blank" rel="noopener">${i.hot?'🔥 ':''}${esc(i.t)}<small>${esc(i.s)} · ${ago(i.ts)} · ${esc(i.topic)}</small></a>`).join(''):'<p class="mut" style="padding:12px">No headlines in this topic.</p>';
+ $('nst').textContent='Updated '+ago(NW.updated)+' · headlines via Google News, prices delayed · 🔥 = high-impact keywords';
+ $('ntp').querySelectorAll('button').forEach(b=>b.onclick=()=>{NT=b.dataset.nt;nrender()});
+}
+async function nload(){try{const r=await fetch('news.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;NW=await r.json();nrender()}catch(e){if(!NW)$('nst').textContent='News appears after the news workflow has run once.'}}
+nload();setInterval(nload,300000);
+
 const TH=[['white','#ffffff','White'],['dark','#111827','Dark'],['ocean','#0ea5e9','Ocean'],['forest','#22c55e','Forest'],['sunset','#f97316','Sunset']];
 function setTh(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('sp_th',t)}catch(e){}
  $('sw').innerHTML=TH.map(x=>`<button title="${x[2]}" aria-label="${x[2]} theme" class="${x[0]==t?'on':''}" style="background:${x[1]}" data-th="${x[0]}"></button>`).join('');
