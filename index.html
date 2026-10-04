@@ -155,6 +155,7 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
  b.classList.add('on');$(b.dataset.t).classList.add('on');window.scrollTo(0,0)});
 fetch('data.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;
  const m={p:d.close,e20:d.ema20,e50:d.ema50,e200:d.ema200};
+ const B=d.breadth;if(B)Object.assign(m,{adv:B.adv,dec:B.dec,b20:B.b20,b50:B.b50,b200:B.b200,hi:B.hi,lo:B.lo});
  for(const k in m){S[k]=String(m[k]);const el=document.querySelector('[data-k="'+k+'"]');if(el)el.value=S[k]}
  save();upd();$('stamp').textContent+=' · Index auto-updated from '+d.date}).catch(()=>{});
 </script></body></html>
