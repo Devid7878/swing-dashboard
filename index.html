@@ -1,53 +1,77 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234f46e5'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url%28%23g%29'/%3E%3Cpath d='M6 23 L12 16 L17 20 L26 9' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='26' cy='9' r='2.6' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#4f46e5">
+<meta name="apple-mobile-web-app-title" content="Swing Playbook">
 <title>Swing Trading Playbook</title>
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
---bg:#f6f7f9;--card:#fff;--ink:#16202a;--mut:#5d6b78;--line:#dde2e8;--acc:#0f5c7a;--g:#1f8a4c;--y:#c79a00;--o:#d9731a;--r:#c62828}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10161c;--card:#18212a;--ink:#e7edf2;--mut:#93a1ae;--line:#2a3541;--acc:#5bb8d8;--g:#4cc27d;--y:#e6bd3a;--o:#f09a4f;--r:#ef6b6b}}
-:root[data-theme="dark"]{--bg:#10161c;--card:#18212a;--ink:#e7edf2;--mut:#93a1ae;--line:#2a3541;--acc:#5bb8d8;--g:#4cc27d;--y:#e6bd3a;--o:#f09a4f;--r:#ef6b6b}
-html{scroll-padding-top:60px}*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:6px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
-nav button{flex:1;padding:8px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 13px inherit;font-family:inherit}
-nav button.on{background:var(--acc);color:var(--bg);border-color:var(--acc)}
-main{max-width:720px;margin:0 auto;padding:10px 10px 40px}
+:root{--bg:#f6f7fb;--card:#fff;--ink:#1e293b;--mut:#64748b;--line:#e6eaf2;--acc:#4f46e5;--h1:#4f46e5;--h2:#06b6d4;--sh:0 4px 16px rgba(30,41,59,.07);--g:#16a34a;--y:#eab308;--o:#f97316;--r:#ef4444}
+[data-theme=dark]{--bg:#0b1020;--card:#151b2f;--ink:#e6e9f5;--mut:#94a0bd;--line:#263050;--acc:#818cf8;--h1:#3730a3;--h2:#0e7490;--sh:0 4px 16px rgba(0,0,0,.35);--g:#22c55e;--o:#fb923c;--r:#f87171}
+[data-theme=ocean]{--bg:#eaf6fb;--ink:#0b2a3a;--mut:#4d6b7c;--line:#cfe6f0;--acc:#0284c7;--h1:#0369a1;--h2:#22d3ee}
+[data-theme=forest]{--bg:#eef7f1;--ink:#12301f;--mut:#4f6b5a;--line:#d3e8da;--acc:#15803d;--h1:#166534;--h2:#84cc16}
+[data-theme=sunset]{--bg:#fff3ea;--ink:#3a1f12;--mut:#7c5a48;--line:#f3dccb;--acc:#ea580c;--h1:#db2777;--h2:#f59e0b}
+*{box-sizing:border-box}
+:root{padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif;transition:background .25s}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 18px) 16px 22px;background:linear-gradient(135deg,var(--h1),var(--h2));color:#fff}
+header b{font-size:20px;letter-spacing:.2px;display:block}header small{opacity:.85;font-size:12.5px}
+.sw{display:flex;gap:7px}.sw button{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.55);padding:0}
+.sw button.on{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.4)}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:6px;padding:10px;background:var(--bg)}
+nav button{flex:1;padding:9px 4px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 13px inherit;font-family:inherit;box-shadow:var(--sh)}
+nav button.on{background:linear-gradient(135deg,var(--h1),var(--h2));color:#fff;border-color:transparent}
+main{max-width:720px;margin:0 auto;padding:2px 12px 40px}
 .tab{display:none}.tab.on{display:block}
-h1{font-size:20px;margin:8px 2px}h2{font-size:16px;margin:18px 2px 8px;color:var(--acc)}
-.box{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:0 0 8px;overflow:hidden}
-.hd{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
-.in{padding:10px 12px}.mut{color:var(--mut);font-size:12.5px;margin:6px 0 0}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-label.f{display:block;font-size:12.5px;color:var(--mut)}
-input[type=number],select{width:100%;margin-top:3px;padding:9px;font-size:16px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
-.chip{padding:3px 10px;border-radius:99px;font-size:13px;font-weight:700;border:1px solid var(--line);color:var(--mut);white-space:nowrap}
-.c0{background:var(--g);color:#fff;border-color:transparent}.c1{background:var(--y);color:#111;border-color:transparent}
-.c2{background:var(--o);color:#111;border-color:transparent}.c3{background:var(--r);color:#fff;border-color:transparent}
-.big{padding:14px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.big b{font-size:17px}
-.step{padding:11px 12px;display:flex;justify-content:space-between;gap:8px;font-weight:600}
-.step+.body{padding:2px 12px 12px}
-.lock{opacity:.45}.done{color:var(--g)}
-.ck{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
-.ck input{width:20px;height:20px;margin-top:1px;flex:none}
-.btns{display:flex;gap:8px;margin-top:12px}
-.b{flex:1;padding:11px;border-radius:8px;border:0;font:700 14px inherit;font-family:inherit;color:#fff}
-.b.ok{background:var(--g)}.b.no{background:var(--r)}.b:disabled{opacity:.35}
-.alert{padding:14px;border-radius:10px;margin:0 0 10px;background:var(--r);color:#fff;font-size:15px}
-.alert.ok{background:var(--g)}
-.alert button{margin-top:10px;padding:8px 12px;border-radius:8px;border:1px solid #fff;background:transparent;color:#fff;font-weight:600}
-.calc{margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:8px}
+h1{font-size:18px;margin:10px 2px 10px}
+.box{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--a,var(--acc));border-radius:14px;margin:0 0 10px;overflow:hidden;box-shadow:var(--sh)}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 14px 0}
+.hd b{font-size:15px}
+.in{padding:10px 14px 12px}.mut{color:var(--mut);font-size:12.5px;margin:8px 0 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label.f{display:block;font-size:12px;color:var(--mut);font-weight:600}
+input[type=number],select{width:100%;margin-top:4px;padding:10px;font-size:16px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);outline:0}
+input[type=number]:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.chip{padding:4px 11px;border-radius:99px;font-size:12.5px;font-weight:700;background:var(--bg);border:1px solid var(--line);color:var(--mut);white-space:nowrap}
+.c0{background:var(--g);color:#fff;border-color:transparent}.c1{background:var(--y);color:#222;border-color:transparent}
+.c2{background:var(--o);color:#222;border-color:transparent}.c3{background:var(--r);color:#fff;border-color:transparent}
+.big{padding:16px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;border-left-width:1px}
+.big b{font-size:18px}.big .mut{margin:3px 0 0}
+.big.r0{background:linear-gradient(135deg,#16a34a,#4ade80)}.big.r1{background:linear-gradient(135deg,#ca8a04,#facc15)}
+.big.r2{background:linear-gradient(135deg,#ea580c,#fb923c)}.big.r3{background:linear-gradient(135deg,#dc2626,#f87171)}
+.big.r0,.big.r2,.big.r3{color:#fff}.big.r1{color:#2a2000}
+.big[class*=" r"] .mut{color:inherit;opacity:.9}.big[class*=" r"] .chip{background:rgba(255,255,255,.28);color:inherit;border-color:rgba(255,255,255,.5)}
+.step{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600}
+.step span:first-child{display:flex;align-items:center;gap:10px}
+.n{font-style:normal;width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--h1),var(--h2));flex:none}
+.done .n{background:var(--g)}.lock{opacity:.5}.done{color:var(--g)}
+.body{padding:0 14px 14px}
+.ck{display:flex;gap:11px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.ck input{width:20px;height:20px;margin-top:1px;flex:none;accent-color:var(--acc)}
+.btns{display:flex;gap:8px;margin-top:14px}
+.b{flex:1;padding:12px;border-radius:12px;border:0;font:700 14px inherit;font-family:inherit;color:#fff}
+.b.ok{background:linear-gradient(135deg,#16a34a,#22c55e)}.b.no{background:linear-gradient(135deg,#dc2626,#f87171)}.b:disabled{opacity:.35}
+.alert{padding:16px;border-radius:14px;margin:0 0 12px;background:linear-gradient(135deg,#dc2626,#f87171);color:#fff;box-shadow:var(--sh)}
+.alert.ok{background:linear-gradient(135deg,#16a34a,#4ade80)}
+.alert button{margin-top:10px;padding:8px 14px;border-radius:10px;border:1px solid #fff;background:transparent;color:#fff;font-weight:600}
+.calc{margin-top:10px;padding:12px;border:1px dashed var(--acc);border-radius:12px;background:color-mix(in srgb,var(--acc) 6%,transparent)}
 .calc b{display:block;margin-top:8px}
-ol{margin:0;padding-left:26px}li{margin:4px 0}
-details>summary{cursor:pointer;padding:10px 12px;font-weight:600}
+.rl{list-style:none;margin:0;padding:0}
+.rl li{position:relative;padding:5px 0 5px 20px}
+.rl li::before{content:"";position:absolute;left:3px;top:13px;width:8px;height:8px;border-radius:50%;background:var(--a,var(--acc))}
+details>summary{cursor:pointer;padding:13px 14px;font-weight:700;list-style:none;display:flex;justify-content:space-between}
+details>summary::after{content:"＋";color:var(--mut)}details[open]>summary::after{content:"－"}
+details[open]>summary{border-bottom:1px solid var(--line)}
 </style></head><body>
-<nav><button data-t="regime" class="on">Regime</button><button data-t="check">Checklist</button><button data-t="rules">Rules</button></nav>
+<header><div style="display:flex;align-items:center;gap:12px"><svg width='42' height='42' viewBox='0 0 32 32' aria-hidden='true'><rect width='32' height='32' rx='8' fill='rgba(255,255,255,.22)'/><path d='M6 23 L12 16 L17 20 L26 9' fill='none' stroke='#fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/><circle cx='26' cy='9' r='2.6' fill='#fff'/></svg><div><b>Swing Playbook</b><small>Trade the plan, not the mood</small></div></div><div class="sw" id="sw"></div></header>
+<nav><button data-t="regime" class="on">📊 Regime</button><button data-t="check">✅ Checklist</button><button data-t="rules">📜 Rules</button></nav>
 <main>
 
 <section class="tab on" id="regime">
 <h1>Market regime</h1>
-<div class="box"><div class="big"><div><b id="ovl">Enter data below</b><div class="mut" id="ovr" style="margin:2px 0 0"></div></div><span class="chip" id="ch_o"></span></div></div>
+<div class="box big" id="ovb"><div class="big" style="display:contents"><div><b id="ovl">Enter data below</b><div class="mut" id="ovr" style="margin:2px 0 0"></div></div><span class="chip" id="ch_o"></span></div></div>
 <div id="layers"></div>
 <p class="mut" id="stamp"></p>
 </section>
@@ -58,17 +82,17 @@ details>summary{cursor:pointer;padding:10px 12px;font-weight:600}
 </section>
 
 <section class="tab" id="rules">
-<h1>34 rules</h1>
-<div class="box"><details open><summary>Market &amp; selection</summary><div class="in"><ol>
-<li value="1">Decide regime before deciding to trade.</li><li value="2">Green normal · Yellow half · Orange minimal · Red none.</li><li value="3">Only proven swing setups.</li><li value="4">Only the Focus List generates trades.</li><li value="5">No valid setup = no trade.</li><li value="20">No random intraday trades.</li><li value="21">IPOs only on my predefined setup.</li><li value="22">Choppy: cut exposure, raise selectivity, not frequency.</li><li value="30">Protect capital in bad markets, deploy in good ones.</li><li value="31">Never lower standards on an empty list.</li></ol></div></details></div>
-<div class="box"><details><summary>Risk &amp; sizing</summary><div class="in"><ol>
-<li value="6">Entry, stop, size, risk set before buying.</li><li value="7">Size from stop + risk budget, not conviction.</li><li value="8">Never exceed per-trade risk.</li><li value="9">Never exceed max portfolio open risk.</li><li value="23">After a losing streak: cut size, review, resume.</li><li value="24">Stop initiating at the loss limit.</li></ol></div></details></div>
-<div class="box"><details><summary>Execution</summary><div class="in"><ol>
-<li value="10">Never chase a missed entry.</li><li value="11">No FOMO, boredom, excitement, revenge.</li><li value="12">No averaging down unless tested.</li><li value="14">Never widen a stop.</li><li value="15">Never sell a winner to offset a loser.</li><li value="16">Manage by setup, not today's P&amp;L.</li><li value="17">Let winners run.</li><li value="34">Follow the system when emotions disagree.</li></ol></div></details></div>
-<div class="box"><details><summary>Mindset</summary><div class="in"><ol>
-<li value="13">A stop is a business expense.</li><li value="18">No need to trade daily or weekly.</li><li value="19">Cash is a position.</li><li value="29">Execute a positive-expectancy process.</li><li value="32">Miss a great trade over taking a bad one.</li><li value="33">Capital preservation first.</li></ol></div></details></div>
-<div class="box"><details><summary>Measure &amp; review</summary><div class="in"><ol>
-<li value="25">Judge by R and expectancy, not ₹.</li><li value="26">Journal every trade incl. rule violations.</li><li value="27">Judge over a meaningful sample.</li><li value="28">Weekly review: regime, setup, execution or psychology?</li></ol></div></details></div>
+<h1>Rules</h1>
+<div class="box" style="--a:#6366f1"><details open><summary>🧭 Market &amp; selection</summary><div class="in"><ul class="rl">
+<li>Decide regime before deciding to trade.</li><li>Green normal · Yellow half · Orange minimal · Red none.</li><li>Only proven swing setups.</li><li>Only the Focus List generates trades.</li><li>No valid setup = no trade.</li><li>No random intraday trades.</li><li>IPOs only on my predefined setup.</li><li>Choppy: cut exposure, raise selectivity, not frequency.</li><li>Protect capital in bad markets, deploy in good ones.</li><li>Never lower standards on an empty list.</li></ul></div></details></div>
+<div class="box" style="--a:#ef4444"><details><summary>🛡️ Risk &amp; sizing</summary><div class="in"><ul class="rl">
+<li>Entry, stop, size, risk set before buying.</li><li>Size from stop + risk budget, not conviction.</li><li>Never exceed per-trade risk.</li><li>Never exceed max portfolio open risk.</li><li>After a losing streak: cut size, review, resume.</li><li>Stop initiating at the loss limit.</li></ul></div></details></div>
+<div class="box" style="--a:#0ea5e9"><details><summary>⚙️ Execution</summary><div class="in"><ul class="rl">
+<li>Never chase a missed entry.</li><li>No FOMO, boredom, excitement, revenge.</li><li>No averaging down unless tested.</li><li>Never widen a stop.</li><li>Never sell a winner to offset a loser.</li><li>Manage by setup, not today's P&amp;L.</li><li>Let winners run.</li><li>Follow the system when emotions disagree.</li></ul></div></details></div>
+<div class="box" style="--a:#10b981"><details><summary>🧘 Mindset</summary><div class="in"><ul class="rl">
+<li>A stop is a business expense.</li><li>No need to trade daily or weekly.</li><li>Cash is a position.</li><li>Execute a positive-expectancy process.</li><li>Miss a great trade over taking a bad one.</li><li>Capital preservation first.</li></ul></div></details></div>
+<div class="box" style="--a:#f59e0b"><details><summary>📒 Measure &amp; review</summary><div class="in"><ul class="rl">
+<li>Judge by R and expectancy, not ₹.</li><li>Journal every trade incl. rule violations.</li><li>Judge over a meaningful sample.</li><li>Weekly review: regime, setup, execution or psychology?</li></ul></div></details></div>
 </section>
 </main>
 
@@ -90,7 +114,7 @@ const LY=[
 {id:'ld',t:'3 · Leadership',n:['Strong leadership','Selective','Deteriorating','No leadership'],b:sel('ld',['Strong','Selective','Deteriorating','None'])},
 {id:'bo',t:'4 · Breakouts',n:['Working','Mixed','High failure','Rejected'],b:sel('bo',['Working','Mixed','High failure','Rejected'])},
 {id:'tr',t:'5 · My trades',n:['Working','Mixed','Struggling','Out of sync'],b:sel('tr',['Working','Mixed','Struggling','Out of sync'])}];
-$('layers').innerHTML=LY.map(l=>`<div class="box"><div class="hd"><b>${l.t}</b><span class="chip" id="ch_${l.id}"></span></div><div class="in">${l.b}${l.r?`<p class="mut">${l.r}</p>`:''}</div></div>`).join('');
+$('layers').innerHTML=LY.map((l,i)=>`<div class="box" style="--a:${['#6366f1','#0ea5e9','#10b981','#f59e0b','#ec4899'][i]}"><div class="hd"><b>${l.t}</b><span class="chip" id="ch_${l.id}"></span></div><div class="in">${l.b}${l.r?`<p class="mut">${l.r}</p>`:''}</div></div>`).join('');
 document.querySelectorAll('[data-k]').forEach(el=>{el.value=S[el.dataset.k]??'';el.addEventListener('input',()=>{S[el.dataset.k]=el.value;save();upd()})});
 
 function vIdx(){const[p,a,b,c]=['p','e20','e50','e200'].map(num);if([p,a,b,c].includes(null))return null;
@@ -108,7 +132,7 @@ function upd(){
  LY.forEach((l,i)=>setChip(l.id,V[i],l.n));
  const f=V.filter(v=>v!=null);
  regime=f.length?(V[0]===3?3:Math.round(f.reduce((a,b)=>a+b,0)/f.length)):null;
- setChip('o',regime,RN);
+ setChip('o',regime,RN);$('ovb').className='box big'+(regime==null?'':' r'+regime);
  $('ovl').textContent=regime==null?'Enter data below':RN[regime]+' market · '+RISK[regime];
  $('ovr').textContent=f.length+' of 5 layers filled'+(V[0]===3?' · Index damaged forces Red':'');
  $('stamp').textContent=S.d?'Last updated: '+S.d+' (saved in this browser)':'';
@@ -134,7 +158,7 @@ function render(){
  else if(cur>=G.length)h+=`<div class="alert ok" role="status"><b>✅ All 9 gates passed.</b><br>Take the trade exactly as planned.<br><button id="rs">Reset checklist</button></div>`;
  G.forEach((g,i)=>{
   const st=i<cur?'done':i===cur?(fail===i?'fail':'act'):'lock';
-  h+=`<div class="box ${st==='lock'?'lock':''}"><div class="step ${st==='done'?'done':''}"><span>${i+1} · ${g[0]}</span><span>${st==='done'?'✓':st==='fail'?'✕':st==='lock'?'🔒':''}</span></div>`;
+  h+=`<div class="box ${st==='lock'?'lock':''}"><div class="step ${st==='done'?'done':''}"><span><i class="n">${i+1}</i>${g[0]}</span><span>${st==='done'?'✓':st==='fail'?'✕':st==='lock'?'🔒':''}</span></div>`;
   if(st==='act')h+=`<div class="body">${g[2]||''}${g[1].map(t=>`<label class="ck"><input type="checkbox">${t}</label>`).join('')}<div class="btns"><button class="b ok" id="pass" disabled>Pass gate</button><button class="b no" id="nope">A check fails</button></div></div>`;
   h+='</div>'});
  $('steps').innerHTML=h;upd();
@@ -153,6 +177,11 @@ render();
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
  document.querySelectorAll('nav button,.tab').forEach(x=>x.classList.remove('on'));
  b.classList.add('on');$(b.dataset.t).classList.add('on');window.scrollTo(0,0)});
+const TH=[['white','#ffffff','White'],['dark','#111827','Dark'],['ocean','#0ea5e9','Ocean'],['forest','#22c55e','Forest'],['sunset','#f97316','Sunset']];
+function setTh(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('sp_th',t)}catch(e){}
+ $('sw').innerHTML=TH.map(x=>`<button title="${x[2]}" aria-label="${x[2]} theme" class="${x[0]==t?'on':''}" style="background:${x[1]}" data-th="${x[0]}"></button>`).join('');
+ $('sw').querySelectorAll('button').forEach(b=>b.onclick=()=>setTh(b.dataset.th))}
+let t0='white';try{t0=localStorage.getItem('sp_th')||'white'}catch(e){}setTh(t0);
 fetch('data.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;
  const m={p:d.close,e20:d.ema20,e50:d.ema50,e200:d.ema200};
  const B=d.breadth;if(B)Object.assign(m,{adv:B.adv,dec:B.dec,b20:B.b20,b50:B.b50,b200:B.b200,hi:B.hi,lo:B.lo});
