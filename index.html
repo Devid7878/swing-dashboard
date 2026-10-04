@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Swing Trading Playbook</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f6f7f9;--card:#fff;--ink:#16202a;--mut:#5d6b78;--line:#dde2e8;--acc:#0f5c7a;--g:#1f8a4c;--y:#c79a00;--o:#d9731a;--r:#c62828}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10161c;--card:#18212a;--ink:#e7edf2;--mut:#93a1ae;--line:#2a3541;--acc:#5bb8d8;--g:#4cc27d;--y:#e6bd3a;--o:#f09a4f;--r:#ef6b6b}}
+:root[data-theme="dark"]{--bg:#10161c;--card:#18212a;--ink:#e7edf2;--mut:#93a1ae;--line:#2a3541;--acc:#5bb8d8;--g:#4cc27d;--y:#e6bd3a;--o:#f09a4f;--r:#ef6b6b}
+html{scroll-padding-top:60px}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:6px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
+nav button{flex:1;padding:8px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 13px inherit;font-family:inherit}
+nav button.on{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+main{max-width:720px;margin:0 auto;padding:10px 10px 40px}
+.tab{display:none}.tab.on{display:block}
+h1{font-size:20px;margin:8px 2px}h2{font-size:16px;margin:18px 2px 8px;color:var(--acc)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:0 0 8px;overflow:hidden}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.in{padding:10px 12px}.mut{color:var(--mut);font-size:12.5px;margin:6px 0 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label.f{display:block;font-size:12.5px;color:var(--mut)}
+input[type=number],select{width:100%;margin-top:3px;padding:9px;font-size:16px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.chip{padding:3px 10px;border-radius:99px;font-size:13px;font-weight:700;border:1px solid var(--line);color:var(--mut);white-space:nowrap}
+.c0{background:var(--g);color:#fff;border-color:transparent}.c1{background:var(--y);color:#111;border-color:transparent}
+.c2{background:var(--o);color:#111;border-color:transparent}.c3{background:var(--r);color:#fff;border-color:transparent}
+.big{padding:14px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.big b{font-size:17px}
+.step{padding:11px 12px;display:flex;justify-content:space-between;gap:8px;font-weight:600}
+.step+.body{padding:2px 12px 12px}
+.lock{opacity:.45}.done{color:var(--g)}
+.ck{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
+.ck input{width:20px;height:20px;margin-top:1px;flex:none}
+.btns{display:flex;gap:8px;margin-top:12px}
+.b{flex:1;padding:11px;border-radius:8px;border:0;font:700 14px inherit;font-family:inherit;color:#fff}
+.b.ok{background:var(--g)}.b.no{background:var(--r)}.b:disabled{opacity:.35}
+.alert{padding:14px;border-radius:10px;margin:0 0 10px;background:var(--r);color:#fff;font-size:15px}
+.alert.ok{background:var(--g)}
+.alert button{margin-top:10px;padding:8px 12px;border-radius:8px;border:1px solid #fff;background:transparent;color:#fff;font-weight:600}
+.calc{margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:8px}
+.calc b{display:block;margin-top:8px}
+ol{margin:0;padding-left:26px}li{margin:4px 0}
+details>summary{cursor:pointer;padding:10px 12px;font-weight:600}
+</style></head><body>
+<nav><button data-t="regime" class="on">Regime</button><button data-t="check">Checklist</button><button data-t="rules">Rules</button></nav>
+<main>
+
+<section class="tab on" id="regime">
+<h1>Market regime</h1>
+<div class="box"><div class="big"><div><b id="ovl">Enter data below</b><div class="mut" id="ovr" style="margin:2px 0 0"></div></div><span class="chip" id="ch_o"></span></div></div>
+<div id="layers"></div>
+<p class="mut" id="stamp"></p>
+</section>
+
+<section class="tab" id="check">
+<h1>Pre-trade checklist</h1>
+<div id="steps"></div>
+</section>
+
+<section class="tab" id="rules">
+<h1>34 rules</h1>
+<div class="box"><details open><summary>Market &amp; selection</summary><div class="in"><ol>
+<li value="1">Decide regime before deciding to trade.</li><li value="2">Green normal · Yellow half · Orange minimal · Red none.</li><li value="3">Only proven swing setups.</li><li value="4">Only the Focus List generates trades.</li><li value="5">No valid setup = no trade.</li><li value="20">No random intraday trades.</li><li value="21">IPOs only on my predefined setup.</li><li value="22">Choppy: cut exposure, raise selectivity, not frequency.</li><li value="30">Protect capital in bad markets, deploy in good ones.</li><li value="31">Never lower standards on an empty list.</li></ol></div></details></div>
+<div class="box"><details><summary>Risk &amp; sizing</summary><div class="in"><ol>
+<li value="6">Entry, stop, size, risk set before buying.</li><li value="7">Size from stop + risk budget, not conviction.</li><li value="8">Never exceed per-trade risk.</li><li value="9">Never exceed max portfolio open risk.</li><li value="23">After a losing streak: cut size, review, resume.</li><li value="24">Stop initiating at the loss limit.</li></ol></div></details></div>
+<div class="box"><details><summary>Execution</summary><div class="in"><ol>
+<li value="10">Never chase a missed entry.</li><li value="11">No FOMO, boredom, excitement, revenge.</li><li value="12">No averaging down unless tested.</li><li value="14">Never widen a stop.</li><li value="15">Never sell a winner to offset a loser.</li><li value="16">Manage by setup, not today's P&amp;L.</li><li value="17">Let winners run.</li><li value="34">Follow the system when emotions disagree.</li></ol></div></details></div>
+<div class="box"><details><summary>Mindset</summary><div class="in"><ol>
+<li value="13">A stop is a business expense.</li><li value="18">No need to trade daily or weekly.</li><li value="19">Cash is a position.</li><li value="29">Execute a positive-expectancy process.</li><li value="32">Miss a great trade over taking a bad one.</li><li value="33">Capital preservation first.</li></ol></div></details></div>
+<div class="box"><details><summary>Measure &amp; review</summary><div class="in"><ol>
+<li value="25">Judge by R and expectancy, not ₹.</li><li value="26">Journal every trade incl. rule violations.</li><li value="27">Judge over a meaningful sample.</li><li value="28">Weekly review: regime, setup, execution or psychology?</li></ol></div></details></div>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+let S={};try{S=JSON.parse(localStorage.getItem('sp2'))||{}}catch(e){}
+const save=()=>{try{S.d=new Date().toLocaleString();localStorage.setItem('sp2',JSON.stringify(S))}catch(e){}};
+const E=['🟢','🟡','🟠','🔴'],RISK=['Normal risk','Half risk','Minimal risk','No new trades'],RN=['Green','Yellow','Orange','Red'];
+const num=k=>{const v=parseFloat(S[k]);return isNaN(v)?null:v};
+const inp=(k,l)=>`<label class="f">${l}<input type="number" step="any" inputmode="decimal" data-k="${k}"></label>`;
+const sel=(k,o)=>`<label class="f">Status<select data-k="${k}"><option value="">Select…</option>${o.map((t,i)=>`<option value="${i}">${t}</option>`).join('')}</select></label>`;
+const LY=[
+{id:'idx',t:'1 · Index (Smallcap 250)',n:['Strong','Healthy / mixed','Weak','Damaged'],
+ b:`<div class="grid">${inp('p','CMP')}${inp('e20','20 EMA')}${inp('e50','50 EMA')}${inp('e200','200 EMA')}</div>`,
+ r:'Auto: Strong = above all 3 and 20 &gt; 50 &gt; 200 · Mixed = above 50 &amp; 200 but below 20 or EMAs not stacked · Weak = below 50 · Damaged = below 200.'},
+{id:'br',t:'2 · Breadth',n:['Broad participation','Mixed','Narrow','Broad deterioration'],
+ b:`<div class="grid">${inp('adv','Advances')}${inp('dec','Declines')}${inp('b20','% above 20 EMA')}${inp('b50','% above 50 DMA')}${inp('b200','% above 200 DMA')}${inp('hi','52-wk highs')}${inp('lo','52-wk lows')}</div>`,
+ r:'Auto: each metric scores 0–3 (A/D ≥1.5, ≥1, ≥0.6 · %20 ≥60, 45, 30 · %50 ≥55, 40, 25 · %200 ≥55, 40, 25 · highs/lows ≥2, 1, 0.5); average sets the colour.'},
+{id:'ld',t:'3 · Leadership',n:['Strong leadership','Selective','Deteriorating','No leadership'],b:sel('ld',['Strong','Selective','Deteriorating','None'])},
+{id:'bo',t:'4 · Breakouts',n:['Working','Mixed','High failure','Rejected'],b:sel('bo',['Working','Mixed','High failure','Rejected'])},
+{id:'tr',t:'5 · My trades',n:['Working','Mixed','Struggling','Out of sync'],b:sel('tr',['Working','Mixed','Struggling','Out of sync'])}];
+$('layers').innerHTML=LY.map(l=>`<div class="box"><div class="hd"><b>${l.t}</b><span class="chip" id="ch_${l.id}"></span></div><div class="in">${l.b}${l.r?`<p class="mut">${l.r}</p>`:''}</div></div>`).join('');
+document.querySelectorAll('[data-k]').forEach(el=>{el.value=S[el.dataset.k]??'';el.addEventListener('input',()=>{S[el.dataset.k]=el.value;save();upd()})});
+
+function vIdx(){const[p,a,b,c]=['p','e20','e50','e200'].map(num);if([p,a,b,c].includes(null))return null;
+ if(p<c)return 3;if(p<b)return 2;if(p<a||!(a>b&&b>c))return 1;return 0}
+function vBr(){const[ad,d,x,y,z,h,l]=['adv','dec','b20','b50','b200','hi','lo'].map(num);if([ad,d,x,y,z,h,l].includes(null))return null;
+ const t=(v,a,b,c)=>v>=a?3:v>=b?2:v>=c?1:0;
+ const hl=l===0?(h>0?9:0):h/l;
+ const s=(t(d===0?9:ad/d,1.5,1,.6)+t(x,60,45,30)+t(y,55,40,25)+t(z,55,40,25)+t(hl,2,1,.5))/5;
+ return s>=2.4?0:s>=1.6?1:s>=.8?2:3}
+const vSel=k=>S[k]===''||S[k]==null?null:+S[k];
+let regime=null;
+function setChip(id,v,names){const c=$('ch_'+id);c.className='chip'+(v==null?'':' c'+v);c.textContent=v==null?'Enter data':E[v]+' '+names[v]}
+function upd(){
+ const V=[vIdx(),vBr(),vSel('ld'),vSel('bo'),vSel('tr')];
+ LY.forEach((l,i)=>setChip(l.id,V[i],l.n));
+ const f=V.filter(v=>v!=null);
+ regime=f.length?(V[0]===3?3:Math.round(f.reduce((a,b)=>a+b,0)/f.length)):null;
+ setChip('o',regime,RN);
+ $('ovl').textContent=regime==null?'Enter data below':RN[regime]+' market · '+RISK[regime];
+ $('ovr').textContent=f.length+' of 5 layers filled'+(V[0]===3?' · Index damaged forces Red':'');
+ $('stamp').textContent=S.d?'Last updated: '+S.d+' (saved in this browser)':'';
+ const g=$('g1');if(g)g.textContent=regime==null?'Not set yet':E[regime]+' '+RN[regime]+' · '+RISK[regime];
+}
+upd();
+
+const G=[
+['Market permission',['Regime is Green, Yellow or Orange, not Red','Environment supports my setup type','Regime risk allocation is still available','Portfolio open risk is not too high','The market is offering a setup; I don\'t just need a trade'],'<p class="mut">Today\'s regime: <b id="g1"></b></p>'],
+['Stock eligibility',['It is on my Focus List','Picked in my planned scan','Strong, constructive trend','Relative strength vs market/sector','Sector is healthy or supportive','Liquidity fits my size']],
+['Setup validation',['I can name the setup (VCP, Tight Range, EMA Pullback, Flag, Continuation, IPO Base, DEP)','It meets ALL my criteria','Base is constructive, not loose or messy','Selling is controlled, no distribution','Volume behaves as expected','Close enough to trigger for good risk/reward','The objective trigger has occurred (almost is not a trigger)']],
+['Entry quality',['Price is inside my planned entry zone','Not extended from pivot/trigger','Buying confirmation, not a fast candle','Distance to stop is still acceptable']],
+['Stop-loss',['I know the exact stop level','I know why it is there','If hit, my thesis is invalid','It is technically meaningful, not arbitrary','Stop distance is acceptable for this setup'],'<p class="mut">Stop first, size second.</p>'],
+['Position size & risk',['₹ risk and % portfolio risk are known','Within today\'s regime allowance','New open risk (existing + this) is within my limit','Within max position allocation'],
+ `<div class="calc"><div class="grid">${inp('c1','Entry ₹')}${inp('c2','Stop ₹')}${inp('c3','Max risk ₹')}</div><b id="cq"></b></div>`],
+['Portfolio correlation',['Not already holding several from this sector/theme','Not making the same bet again','Won\'t over-expose me to one theme']],
+['Psychology',['I\'d take it with no trades made today','I\'d take it if my last trade won','I\'d take it if my last trade lost','Not recovering a loss','Not afraid of missing out','Not excited by speed','Not bored','Not proving my market view','If it vanished, I\'d regret a valid trade, not FOMO']],
+['Final test',['Focus List stock, acceptable market, valid setup and trigger, predefined stop, calculated size, acceptable risk, no emotional reason']]];
+let cur=0,fail=-1;
+function render(){
+ let h='';
+ if(fail>=0)h+=`<div class="alert" role="alert"><b>🚫 Gate ${fail+1} failed: ${G[fail][0]}</b><br>Pre-trade checklist failed. You are not allowed to trade today.<br><button id="rs">Reset checklist</button></div>`;
+ else if(cur>=G.length)h+=`<div class="alert ok" role="status"><b>✅ All 9 gates passed.</b><br>Take the trade exactly as planned.<br><button id="rs">Reset checklist</button></div>`;
+ G.forEach((g,i)=>{
+  const st=i<cur?'done':i===cur?(fail===i?'fail':'act'):'lock';
+  h+=`<div class="box ${st==='lock'?'lock':''}"><div class="step ${st==='done'?'done':''}"><span>${i+1} · ${g[0]}</span><span>${st==='done'?'✓':st==='fail'?'✕':st==='lock'?'🔒':''}</span></div>`;
+  if(st==='act')h+=`<div class="body">${g[2]||''}${g[1].map(t=>`<label class="ck"><input type="checkbox">${t}</label>`).join('')}<div class="btns"><button class="b ok" id="pass" disabled>Pass gate</button><button class="b no" id="nope">A check fails</button></div></div>`;
+  h+='</div>'});
+ $('steps').innerHTML=h;upd();
+ const rs=$('rs');if(rs)rs.onclick=()=>{cur=0;fail=-1;render()};
+ const p=$('pass');if(!p)return;
+ const cks=[...document.querySelectorAll('#steps .ck input')];
+ cks.forEach(c=>c.onchange=()=>p.disabled=!cks.every(x=>x.checked));
+ p.onclick=()=>{if(cur===0&&regime===3){fail=0;render();return}cur++;render()};
+ $('nope').onclick=()=>{fail=cur;render();$('steps').scrollIntoView()};
+ ['c1','c2','c3'].forEach(k=>{const e=document.querySelector(`#steps [data-k="${k}"]`);if(e){e.value=S[k]??'';e.oninput=()=>{S[k]=e.value;calc()}}});calc();
+ if(fail>=0||cur>=G.length)window.scrollTo(0,0);
+}
+function calc(){const q=$('cq');if(!q)return;const[e,s,r]=['c1','c2','c3'].map(num);
+ if(e&&s&&r&&e>s){const rps=e-s;const n=Math.floor(r/rps);q.textContent=`Risk/share ₹${rps.toFixed(2)} · Qty ${n} · Capital ₹${Math.round(n*e).toLocaleString('en-IN')}`}else q.textContent='Qty = Max ₹ risk ÷ (Entry − Stop)'}
+render();
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('nav button,.tab').forEach(x=>x.classList.remove('on'));
+ b.classList.add('on');$(b.dataset.t).classList.add('on');window.scrollTo(0,0)});
+fetch('data.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;
+ const m={p:d.close,e20:d.ema20,e50:d.ema50,e200:d.ema200};
+ for(const k in m){S[k]=String(m[k]);const el=document.querySelector('[data-k="'+k+'"]');if(el)el.value=S[k]}
+ save();upd();$('stamp').textContent+=' · Index auto-updated from '+d.date}).catch(()=>{});
+</script></body></html>
