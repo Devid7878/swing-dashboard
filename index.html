@@ -172,7 +172,9 @@ main{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 
 <script>
 const $=id=>document.getElementById(id);
-var RK={allow:0,room:0,limR:0,open:0,blocked:false,why:[],secTxt:''},RKR=0,HR=0,VV=[];
+var RK={allow:0,room:0,limR:0,open:0,blocked:false,why:[],secTxt:''},RKR=0,HR=0,VV=[],DTS=0;
+var DB=(()=>{const h=location.hostname,p=location.pathname.split('/')[1];return /\.github\.io$/.test(h)&&p?'https://raw.githubusercontent.com/'+h.split('.')[0]+'/'+p+'/data/':''})();
+async function dj(f){for(const b of DB?[DB,'']:['']){try{const r=await fetch(b+f+'?t='+Date.now(),{cache:'no-store'});if(r.ok)return await r.json()}catch(e){}}return null}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 let S={};try{S=JSON.parse(localStorage.getItem('sp2'))||{}}catch(e){}
 const save=()=>{try{S.d=new Date().toLocaleString();localStorage.setItem('sp2',JSON.stringify(S))}catch(e){}};
@@ -334,8 +336,8 @@ $('nls').onclick=e=>{const c=e.target.closest('.ncard');if(c)nopen(+c.dataset.i)
 $('nls').onkeydown=e=>{if(e.key==='Enter'){const c=e.target.closest('.ncard');if(c)nopen(+c.dataset.i)}};
 $('nsh').onclick=e=>{if(e.target.id==='nsh'||e.target.id==='nsx')nclose();const r=e.target.closest('[data-r]');if(r){e.preventDefault();nopen(+r.dataset.r)}};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')nclose()});
-async function nload(){try{const r=await fetch('news.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;NW=await r.json();nrender()}catch(e){if(!NW)$('nst').textContent='News appears after the news workflow has run once.'}}
-nload();setInterval(nload,300000);
+async function nload(){const j=await dj('news.json');if(j){NW=j;nrender()}else if(!NW)$('nst').textContent='News appears after the live workflow has run once.'}
+nload();setInterval(nload,120000);
 
 $('hd').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
 function go(t){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.id===t));
@@ -372,9 +374,11 @@ function setTh(t){document.documentElement.dataset.theme=t;try{localStorage.setI
  $('sw').innerHTML=TH.map(x=>`<button title="${x[2]}" aria-label="${x[2]} theme" class="${x[0]==t?'on':''}" style="background:${x[1]}" data-th="${x[0]}"></button>`).join('');
  $('sw').querySelectorAll('button').forEach(b=>b.onclick=()=>setTh(b.dataset.th))}
 let t0='white';try{t0=localStorage.getItem('sp_th')||'white'}catch(e){}setTh(t0);
-fetch('data.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;
- const m={p:d.close,e20:d.ema20,e50:d.ema50,e200:d.ema200};
- const B=d.breadth;if(B)Object.assign(m,{adv:B.adv,dec:B.dec,b20:B.b20,b50:B.b50,b200:B.b200,hi:B.hi,lo:B.lo});
+async function dload(){const d=await dj('data.json');if(!d||(d.ts&&d.ts===DTS))return;DTS=d.ts||1;
+ const m={p:d.close,e20:d.ema20,e50:d.ema50,e200:d.ema200},B=d.breadth;
+ if(B)Object.assign(m,{adv:B.adv,dec:B.dec,b20:B.b20,b50:B.b50,b200:B.b200,hi:B.hi,lo:B.lo});
  for(const k in m){S[k]=String(m[k]);const el=document.querySelector('[data-k="'+k+'"]');if(el)el.value=S[k]}
- save();upd();$('stamp').textContent+=' · Index auto-updated from '+d.date}).catch(()=>{});
+ save();upd();$('stamp').textContent+=' · Auto-updated '+(d.ts?ago(d.ts):d.date)}
+dload();setInterval(dload,120000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){dload();nload()}});
 </script></body></html>

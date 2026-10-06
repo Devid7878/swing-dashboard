@@ -1,5 +1,5 @@
 """Daily job: index EMAs + breadth for the stocks listed in universe.csv -> data.json"""
-import json, os, sys
+import json, os, sys, time
 import pandas as pd
 import yfinance as yf
 
@@ -30,18 +30,27 @@ def breadth(c: pd.DataFrame, total: int) -> dict:
             "n": int(c.shape[1]), "skipped": total - int(c.shape[1])}
 
 if __name__ == "__main__":
+    full = os.environ.get("FULL", "1") == "1"      # breadth is heavy: run it less often
+    prev = {}
+    if os.path.exists("prev.json"):
+        try:
+            prev = json.load(open("prev.json"))
+        except Exception:
+            pass
     idx = dl(TICKER)
     if idx.empty:
         sys.exit(f"No data returned for {TICKER}.")
     out = index_part(idx.iloc[:, 0] if isinstance(idx, pd.DataFrame) else idx)
-    if os.path.exists("universe.csv"):
+    out["ts"] = int(time.time())
+    if full and os.path.exists("universe.csv"):
         try:
             syms = pd.read_csv("universe.csv")["Symbol"].dropna().astype(str).str.strip()
             tick = [s + ".NS" for s in syms]
             out["breadth"] = breadth(dl(tick), len(tick))
+            out["breadth"]["ts"] = out["ts"]
         except Exception as e:                  # index part must still be saved
             print("Breadth failed:", e)
-    else:
-        print("universe.csv not found: skipping breadth")
+    if "breadth" not in out and prev.get("breadth"):
+        out["breadth"] = prev["breadth"]        # keep the last good breadth
     json.dump(out, open("data.json", "w"))
     print(out)
