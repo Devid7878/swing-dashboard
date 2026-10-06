@@ -1,0 +1,48 @@
+name: Live data
+on:
+  schedule:
+    - cron: "*/5 2-17 * * *"      # every 5 min, 7:30 AM - 11:00 PM IST
+    - cron: "0 0-1,18-23 * * *"   # hourly overnight
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: live-data
+  cancel-in-progress: false
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install yfinance pandas
+      - name: Load previous data
+        run: |
+          git fetch origin data --depth=1 2>/dev/null || true
+          git show origin/data:data.json > prev.json 2>/dev/null || true
+          git show origin/data:news.json > prev_news.json 2>/dev/null || true
+      - name: Breadth every 15 min
+        id: m
+        run: |
+          M=$(date -u +%M)
+          if [ "$((10#$M % 15))" -lt 5 ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "full=1" >> "$GITHUB_OUTPUT"; else echo "full=0" >> "$GITHUB_OUTPUT"; fi
+      - run: python fetch_data.py
+        continue-on-error: true
+        env:
+          FULL: ${{ steps.m.outputs.full }}
+      - run: python fetch_news.py
+        continue-on-error: true
+      - name: Publish to data branch
+        run: |
+          [ -f data.json ] || cp prev.json data.json
+          [ -f news.json ] || cp prev_news.json news.json
+          mkdir -p /tmp/pub && cp data.json news.json /tmp/pub/
+          cd /tmp/pub
+          git init -q -b data
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git add .
+          git commit -qm "data $(date -u +%FT%TZ)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" data
